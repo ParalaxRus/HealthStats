@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package healthdb;
+option go_package = "github.com/paralaxrus/health-project/dbsvc/proto;proto";
+
+message User {
+  string name = 1;
+  string email = 2;
+  google.protobuf.Timestamp registered_at = 3;
+  google.protobuf.Timestamp last_login_at = 4;
+}

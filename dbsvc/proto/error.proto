@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package healthdb;
+option go_package = "github.com/paralaxrus/health-project/dbsvc/proto;proto";
+
+message ErrorMsg {
+  int32 code = 1;
+  string description = 2;
+}
