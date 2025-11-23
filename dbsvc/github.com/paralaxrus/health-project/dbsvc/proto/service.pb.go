@@ -25,6 +25,7 @@ type RegisterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,9 +74,16 @@ func (x *RegisterRequest) GetEmail() string {
 	return ""
 }
 
+func (x *RegisterRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
 type RegisterResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	ErrMsg        *ErrorMsg              `protobuf:"bytes,2,opt,name=err_msg,json=errMsg,proto3" json:"err_msg,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -111,11 +119,11 @@ func (*RegisterResponse) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RegisterResponse) GetId() string {
+func (x *RegisterResponse) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *RegisterResponse) GetErrMsg() *ErrorMsg {
@@ -173,13 +181,13 @@ func (x *FindRequest) GetKind() isFindRequest_Kind {
 	return nil
 }
 
-func (x *FindRequest) GetId() string {
+func (x *FindRequest) GetId() int64 {
 	if x != nil {
 		if x, ok := x.Kind.(*FindRequest_Id); ok {
 			return x.Id
 		}
 	}
-	return ""
+	return 0
 }
 
 func (x *FindRequest) GetEmail() string {
@@ -196,7 +204,7 @@ type isFindRequest_Kind interface {
 }
 
 type FindRequest_Id struct {
-	Id string `protobuf:"bytes,1,opt,name=id,proto3,oneof"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3,oneof"`
 }
 
 type FindRequest_Email struct {
@@ -264,15 +272,16 @@ var File_service_proto protoreflect.FileDescriptor
 const file_service_proto_rawDesc = "" +
 	"\n" +
 	"\rservice.proto\x12\bhealthdb\x1a\verror.proto\x1a\n" +
-	"user.proto\";\n" +
+	"user.proto\"W\n" +
 	"\x0fRegisterRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"O\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\"O\n" +
 	"\x10RegisterResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12+\n" +
 	"\aerr_msg\x18\x02 \x01(\v2\x12.healthdb.ErrorMsgR\x06errMsg\"?\n" +
 	"\vFindRequest\x12\x10\n" +
-	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x12\x16\n" +
 	"\x05email\x18\x02 \x01(\tH\x00R\x05emailB\x06\n" +
 	"\x04kind\"_\n" +
 	"\fFindResponse\x12\"\n" +

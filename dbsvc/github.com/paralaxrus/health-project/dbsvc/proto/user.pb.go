@@ -26,8 +26,9 @@ type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	RegisteredAt  *timestamp.Timestamp   `protobuf:"bytes,3,opt,name=registered_at,json=registeredAt,proto3" json:"registered_at,omitempty"`
-	LastLoginAt   *timestamp.Timestamp   `protobuf:"bytes,4,opt,name=last_login_at,json=lastLoginAt,proto3" json:"last_login_at,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	RegisteredAt  *timestamp.Timestamp   `protobuf:"bytes,4,opt,name=registered_at,json=registeredAt,proto3" json:"registered_at,omitempty"`
+	LastLoginAt   *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=last_login_at,json=lastLoginAt,proto3" json:"last_login_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -76,6 +77,13 @@ func (x *User) GetEmail() string {
 	return ""
 }
 
+func (x *User) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
 func (x *User) GetRegisteredAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.RegisteredAt
@@ -95,12 +103,13 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\bhealthdb\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb1\x01\n" +
+	"user.proto\x12\bhealthdb\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n" +
 	"\x04User\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12?\n" +
-	"\rregistered_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\fregisteredAt\x12>\n" +
-	"\rlast_login_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastLoginAtB8Z6github.com/paralaxrus/health-project/dbsvc/proto;protob\x06proto3"
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12?\n" +
+	"\rregistered_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fregisteredAt\x12>\n" +
+	"\rlast_login_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vlastLoginAtB8Z6github.com/paralaxrus/health-project/dbsvc/proto;protob\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
