@@ -18,7 +18,7 @@ type UserDataSource struct {
 }
 
 func NewUserDataSource() *UserDataSource {
-	return &UserDataSource{url: "postgres://username:password@localhost:5432/database_name"}
+	return &UserDataSource{url: "postgres://postgres:postgres-pass@localhost:5432/health_database"}
 }
 
 type Index struct {
@@ -48,14 +48,14 @@ func (s *UserDataSource) Disconnect() {
 	}
 }
 
-func (s *UserDataSource) CreateUser(ctx context.Context, name string, email string, password string) (int64, error) {
+func (s *UserDataSource) CreateUser(ctx context.Context, name string, email string, password string) (int, error) {
 	const query = `
     	INSERT INTO users (email, name, created_at, password)
     	VALUES ($1, $2, $3, $4)
     	RETURNING id
 	`
 	user := model.NewUser(name, email, password)
-	var id int64
+	var id int
 	err := s.db.QueryRow(ctx, query, user.Email, user.Name, user.Created, user.Password).Scan(&id)
 	return id, err
 }

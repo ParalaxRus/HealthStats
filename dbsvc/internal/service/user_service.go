@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/paralaxrus/health-project/dbsvc/github.com/paralaxrus/health-project/dbsvc/proto"
 	"github.com/paralaxrus/health-project/dbsvc/internal/storage"
@@ -13,34 +14,37 @@ import (
 type userServiceHandler struct {
 	proto.UnimplementedUserServiceServer
 
-	store *storage.UserDataSource
+	dataSource *storage.UserDataSource
 }
 
 func (s *userServiceHandler) Open() error {
-	return s.store.Connect()
+	return s.dataSource.Connect()
 }
 
 func (s *userServiceHandler) Close() {
-	s.store.Disconnect()
+	s.dataSource.Disconnect()
 }
 
 func (s *userServiceHandler) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+	log.Println("register grpc API is called")
+
 	if req == nil {
 		return nil, fmt.Errorf("nil request")
 	}
-	id, err := s.store.CreateUser(ctx, req.GetName(), req.GetEmail(), req.GetPassword())
+	id, err := s.dataSource.CreateUser(ctx, req.GetName(), req.GetEmail(), req.GetPassword())
 	if err != nil {
 		return &proto.RegisterResponse{ErrMsg: &proto.ErrorMsg{Description: err.Error()}}, err
 	}
 
-	return &proto.RegisterResponse{Id: id}, nil
+	return &proto.RegisterResponse{Id: int64(id)}, nil
 }
 
 func (s *userServiceHandler) Find(ctx context.Context, req *proto.FindRequest) (*proto.FindResponse, error) {
+	log.Println("find grpc API is called")
 	if req == nil {
 		return nil, fmt.Errorf("nil request")
 	}
-	user, err := s.store.FindUser(ctx, toUserIndex(req))
+	user, err := s.dataSource.FindUser(ctx, toUserIndex(req))
 	if err != nil {
 		return &proto.FindResponse{ErrMsg: &proto.ErrorMsg{Description: err.Error()}}, err
 	}
@@ -49,7 +53,7 @@ func (s *userServiceHandler) Find(ctx context.Context, req *proto.FindRequest) (
 }
 
 func NewUserServiceHandler() *userServiceHandler {
-	return &userServiceHandler{store: storage.NewUserDataSource()}
+	return &userServiceHandler{dataSource: storage.NewUserDataSource()}
 }
 
 func toUserIndex(req *proto.FindRequest) storage.Index {

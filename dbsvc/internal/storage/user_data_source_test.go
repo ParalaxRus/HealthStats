@@ -33,7 +33,7 @@ func TestFindUser(t *testing.T) {
 	}{
 		{
 			"existing",
-			"SELECT \\* FROM users WHERE email = \\$1  LIMIT 1",
+			"SELECT \\* FROM users WHERE email = \\$1 LIMIT 1",
 			"test@gmail.com",
 			nil,
 			&model.User{Name: "test", Email: "test@gmail.com", Created: now, Password: "test-pass"},
@@ -66,6 +66,45 @@ func TestFindUser(t *testing.T) {
 				require.NoError(t, err)
 			}
 			require.Equal(t, tt.expectedUser, actual)
+
+			require.NoError(t, mock.ExpectationsWereMet())
+		})
+	}
+}
+
+func TestCreateUser(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	ds := NewMockUserDataSource(mock)
+
+	tests := []struct {
+		name         string
+		args         []interface{}
+		expectedErr  error
+		expectedRows *pgxmock.Rows
+	}{
+		{
+			"non existing",
+			[]interface{}{"test@gmail.com", "test", pgxmock.AnyArg(), "test"},
+			nil,
+			mock.NewRows([]string{"id"}).AddRow(int(1)),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			query := mock.ExpectQuery("INSERT INTO users \\(email, name, created_at, password\\) VALUES \\(\\$1, \\$2, \\$3, \\$4\\) RETURNING id").
+				WithArgs(tt.args...)
+			if tt.expectedRows != nil {
+				query.WillReturnRows(tt.expectedRows)
+			}
+
+			actual, err := ds.CreateUser(context.Background(), "test", "test@gmail.com", "test")
+			require.NoError(t, err)
+			require.Equal(t, 1, actual)
 
 			require.NoError(t, mock.ExpectationsWereMet())
 		})
