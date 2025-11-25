@@ -10,7 +10,10 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/cmd/server/server.go",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "env": {
+        "DATABASE_URL": "postgres://postgres:postgres-pass@localhost:5432/health_database"
+      }
     },
     {
       "name": "Dbsvc client",

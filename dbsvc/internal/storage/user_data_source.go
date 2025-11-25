@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,12 +15,11 @@ import (
 var ErrUserNotFound = errors.New("user not found")
 
 type UserDataSource struct {
-	url string
-	db  IDatabase
+	db IDatabase
 }
 
 func NewUserDataSource() *UserDataSource {
-	return &UserDataSource{url: "postgres://postgres:postgres-pass@localhost:5432/health_database"}
+	return &UserDataSource{}
 }
 
 type Index struct {
@@ -31,7 +32,12 @@ func NewIndex(id int64, email string) Index {
 }
 
 func (s *UserDataSource) Connect() error {
-	pool, err := pgxpool.New(context.Background(), s.url /*os.Getenv("DATABASE_URL")*/)
+	url := os.Getenv("DATABASE_URL")
+	log.Printf("database url: %s", url)
+	if len(url) == 0 {
+		return fmt.Errorf("health database url is not set")
+	}
+	pool, err := pgxpool.New(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("Unable to connect to database: %v\n", err)
 	}

@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/paralaxrus/health-project/dbsvc/github.com/paralaxrus/health-project/dbsvc/proto"
@@ -11,6 +13,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+const healthDatabaseSvcPort = "5005"
 
 type userInput struct {
 	name  *string
@@ -27,7 +31,8 @@ func main() {
 	input.pass = flag.String("password", "testpass", "user password")
 	flag.Parse()
 
-	conn, err := grpc.NewClient("localhost:5005", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	address := fmt.Sprintf("%s:%s", host(), healthDatabaseSvcPort)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,4 +54,12 @@ func main() {
 	log.Printf("Response: %s", respAsStr)
 
 	log.Printf("Health dbsvc client completed")
+}
+
+func host() string {
+	host := os.Getenv("GRPC_SERVER_ADDR")
+	if len(host) == 0 {
+		return "localhost"
+	}
+	return host
 }
