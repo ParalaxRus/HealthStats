@@ -1,0 +1,147 @@
+# 1. Psql deployment (two services + stateful set + secret)
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      name: db
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-access
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres
+
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: health_database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: psql-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: psql-secret
+                  key: password
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: psql-secret
+type: Opaque
+data:
+  username: cG9zdGdyZXM=
+  password: cG9zdGdyZXMtcGFzcw==
+
+---
+
+
+# 2. Health storage server (deployment + service + secret)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-storage
+  template:
+    metadata:
+      labels:
+        app: health-storage
+    spec:
+      containers:
+        - name: health-storage
+          image: eugenebalykov/health-storage:latest
+          ports:
+            - containerPort: 5005
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: health-storage-secret
+                  key: database-url
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-storage
+spec:
+  type: ClusterIP
+  selector:
+    app: health-storage
+  ports:
+    - name: grpc
+      port: 5005
+      targetPort: 5005
+      protocol: TCP
+
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: health-storage-secret
+type: Opaque
+data:
+  # postgres://postgres:postgres-pass@postgres-access:5432/health_database?sslmode=disable
+  database-url: cG9zdGdyZXM6Ly9wb3N0Z3Jlczpwb3N0Z3Jlcy1wYXNzQHBvc3RncmVzLWFjY2Vzczo1NDMyL2hlYWx0aF9kYXRhYmFzZT9zc2xtb2RlPWRpc2FibGU=

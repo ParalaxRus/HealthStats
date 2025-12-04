@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: health-storage-client-job
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: health-storage-client
+        image: eugenebalykov/health-storage-client:latest
+        args: ["--name=test6", "--email=test6@gmail.com", "--password=test6"]
+        env:
+          - name: GRPC_SERVER_ADDR
+            value: "health-storage:5005"
