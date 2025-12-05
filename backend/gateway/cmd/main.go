@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	usersClient, err := users.NewUsersClient()
+	userSvc, err := users.NewUserServiceClient()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer usersClient.Close()
+	defer userSvc.Close()
 
-	handler, err := server.NewHttpHandler(usersClient)
+	handler, err := server.NewHttpHandler(userSvc)
 	if err != nil {
 		log.Fatal(err)
 	}
