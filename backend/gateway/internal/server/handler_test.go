@@ -2,6 +2,7 @@ package server_test
 
 import (
 	"context"
+	"encoding/json"
 	"gateway/internal/mocks"
 	"gateway/internal/server"
 	"gateway/internal/services/users"
@@ -54,7 +55,11 @@ func TestFindUserHandler(t *testing.T) {
 	require.NoError(t, err)
 	handler.ServeHTTP(rr, req)
 
-	expected := `{"name":"test1","email":"test1@gmail.com","password":"test1-pass"}`
 	require.Equal(t, rr.Code, http.StatusOK)
-	require.Equal(t, expected, rr.Body.String())
+
+	var actualUser users.User
+	err = json.NewDecoder(rr.Body).Decode(&actualUser)
+	require.NoError(t, err)
+
+	require.Equal(t, *expectedUser, actualUser)
 }

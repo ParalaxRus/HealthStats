@@ -39,7 +39,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func isCreateUserRequest(req *http.Request) bool {
-	return req.Method == "POST" && strings.HasPrefix(req.URL.Path, "/users/create")
+	return req.Method == "POST" && strings.HasPrefix(req.URL.Path, "/users")
 }
 
 func (h *handler) createUserHandler(w http.ResponseWriter, req *http.Request) {
