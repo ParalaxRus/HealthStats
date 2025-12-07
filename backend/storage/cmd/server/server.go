@@ -17,18 +17,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v on port %v", err, grpcPort)
 	}
+	log.Printf("user service is listening on %v", grpcPort)
 
-	handler := service.NewUserServiceHandler()
-	defer handler.Close()
-	if err = handler.Open(); err != nil {
+	service := service.NewUserService()
+	if err = service.Open(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
+	defer service.Close()
 
 	grpcServer := grpc.NewServer()
-	proto.RegisterUserServiceServer(grpcServer, handler)
+	proto.RegisterUserServiceServer(grpcServer, service)
 	reflection.Register(grpcServer)
 
-	log.Printf("health state service is listening on %v", grpcPort)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

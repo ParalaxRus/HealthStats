@@ -40,7 +40,7 @@ type userService struct {
 }
 
 func NewUserServiceClient() (UserService, error) {
-	host := getUsersServiceHost()
+	host := getUserServiceHost()
 	log.Println(host)
 	conn, err := grpc.NewClient(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -84,8 +84,8 @@ func (u *userService) Close() {
 	}
 }
 
-func getUsersServiceHost() string {
-	host := os.Getenv("GRPC_SERVER_ADDR")
+func getUserServiceHost() string {
+	host := os.Getenv("USER_SERVICE_HOST")
 	if len(host) == 0 {
 		return "localhost:5005"
 	}

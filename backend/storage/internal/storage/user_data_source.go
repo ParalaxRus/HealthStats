@@ -33,7 +33,7 @@ func NewIndex(id int64, email string) Index {
 
 func (s *UserDataSource) Connect() error {
 	url := os.Getenv("DATABASE_URL")
-	log.Printf("database url: %s", url)
+	log.Printf("connecting to database: %s", url)
 	if len(url) == 0 {
 		return fmt.Errorf("health database url is not set")
 	}
@@ -45,7 +45,13 @@ func (s *UserDataSource) Connect() error {
 	if err != nil {
 		return fmt.Errorf("Unable to create postgres db %v", err)
 	}
-	return s.createSchema()
+	err = s.createSchema()
+	success := "completed"
+	if err != nil {
+		success = "failed"
+	}
+	log.Printf("connection %s", success)
+	return err
 }
 
 func (s *UserDataSource) Disconnect() {
@@ -94,6 +100,9 @@ func (s *UserDataSource) createSchema() error {
 	);
 	`
 
+	log.Printf("executing create users table query")
+	log.Printf("connect completed, db=%v", s.db)
 	_, err := s.db.Exec(context.Background(), query)
+	log.Printf("done executing create users table query, err=%v", err)
 	return err
 }
